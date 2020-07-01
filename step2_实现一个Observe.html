@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>step2_实现一个Observe</title>
+</head>
+
+<body>
+    <script>
+        // 1. 不考虑对象中嵌套的情况 实现一个最简单的Observe
+        let person = {
+            name: '张三',
+            age: 19
+        }
+        function observe(data) {
+            for (const key in data) {
+                let oldValue = data[key];
+                Object.defineProperty(data, key, {
+                    get: function () {
+                        return 'getter捕获到：' + oldValue;
+                    },
+                    set: function (newValue) {
+                        if (newValue !== oldValue) {
+                            oldValue = newValue;
+                            console.log('监听到新的更改', oldValue, ' => ', newValue);
+                        }
+                        console.log('未更改', oldValue);
+                    }
+                });
+            }
+        }
+        observe(person);
+    </script>
+</body>
+
+</html>

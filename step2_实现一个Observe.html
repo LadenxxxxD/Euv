@@ -9,6 +9,7 @@
 
 <body>
     <script>
+        // 探究Vue的数据劫持
         // 1. 不考虑对象中嵌套的情况 实现一个最简单的Observe
         let person = {
             name: '张三',
@@ -51,11 +52,12 @@
         }
         function observe2(data) {
             if (data && typeof data === 'object') {
-                for (const key in data) {
-                    let value = data[key];
-                    observe2(value); // 这里添加了递归
+                // 上面如果直接判断是否为object类型 会包含null
+                for (const key in data) {       // 循环遍历监听对象中的每一个属性
+                    let value = data[key];      // 暂存旧的值
+                    observe2(value);            // 这里添加了递归（原本的对象中可以能存在嵌套的子对象）
                     Object.defineProperty(data, key, {
-                        // enumerable: true, // 可枚举
+                        enumerable: true,    // 可枚举
                         get: function () {
                             console.log('getter捕获到：', value);
                             return value;
@@ -67,7 +69,7 @@
                             }
                             value = newValue;
                             console.log('监听到新的更改', value, ' => ', newValue);
-                            observe2(newValue);  // 这里添加了递归
+                            observe2(newValue);    // 这里添加了递归（新赋的值中可能为一个嵌套对象）
                         }
                     });
                 }

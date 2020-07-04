@@ -9,6 +9,8 @@
 
 <body>
     <script>
+        // 实现一个简单的发布-订阅模式框架
+
         // 定义一个订阅者收集器 在数组中存放所有订阅者
         function Dep() {
             this.subs = [];
@@ -37,6 +39,9 @@
         dep.addSub(watcher); // 把watcher放到了数组中
         dep.addSub(watcher); // 把watcher放到了数组中
         dep.subs.forEach(watcher => watcher.update());
+
+        // 完成以上三步 我们就算已经完成了Vue响应式最基础的框架了
+        // 但我们目前并不能像Vue那样配合视图使用它 我们可以在控制台测试一下
     </script>
 </body>
 

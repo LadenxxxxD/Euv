@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>step4_连接Observe和Watcher</title>
+</head>
+
+<body>
+    <script>
+
+        // 接下来把observe 和 watch连接起来
+        // 此时我们需要思考 我们在什么契机下会需要更改视图呢？是数据发生变化的时候
+        // 因此 我们只需要在数据变化后 调用Watcher的update
+
+        let person = {
+            name: '李四',
+            age: 20,
+            ability: {
+                learning: '数学',
+                sports: '游泳',
+                artistic: {
+                    music: '钢琴',
+                    painting: '速写'
+                }
+            }
+        }
+        function observe(data) {
+            if (!data || typeof data !== 'object') {
+                return;
+            }
+            // 这里使用稍微高级一点点的写法 带领大家循序渐进 思路和之前是完全一样的
+            Object.keys(data).forEach(key => {
+                let value = data[key];
+                let watcher = new Watcher(value, function () {
+                    console.log("watcher 更新了视图！", this.value, " => ", this.newValue);
+                });
+                dep.addSub(Watcher);
+                observe(value);
+                Object.defineProperty(data, key, {
+                    configurable: true,
+                    enumerable: true,
+                    get: () => {
+                        console.log("正在读取", key, " => ", value);
+                        return value;
+                    },
+                    set: newValue => {
+                        if (newValue === value) {
+                            console.log("与原来值一样 未更改");
+                            return;
+                        }
+                        console.log(key, " => ", value, " 已经更改为 ", key, " => ", newValue);
+                        watcher.update(newValue); // 更新视图
+                        value = newValue;
+                        observe(newValue);
+                        // 这里不要忘了给新赋的值添加监听 因为新赋的值也可能是个嵌套的对象
+                    }
+                });
+            });
+        }
+        // observe(person);
+
+        // 现在你可以在控制台中测试
+        // person.name;
+        // person.ability.learning = "语文";
+        /* person.ability.artistic = {
+            music: '架子鼓',
+            painting: '素描'
+        }; */
+        // person.ability.artistic.music = "小提琴";
+        // 可以看到 我们每次读取或更改person的值 都会被监听到
+
+        function Dep() {
+            this.subs = [];
+        }
+        Dep.prototype.addSub = function (sub) {
+            // 坑 这里不能用箭头函数哦 不然this就不再指向Dep对象了
+            this.subs.push(sub);
+        };
+        Dep.prototype.notify = function () {
+            console.log("通知了");
+            // 这里我没有用notify作为通知 而是直接调用watcher的update方法 仅仅只是为了方便你能看到实时效果 
+            // 但是你必须知道 updata是需要接收到Dep的notify 才会调用的
+        };
+
+        function Watcher(value, func) {
+            this.value = value;
+            this.func = func;
+        }
+        Watcher.prototype.update = function (newValue) {
+            this.newValue = newValue;
+            this.func()
+        };
+
+        let watcher2 = new Watcher(function () {
+            console.log("watcher2 更新了视图！"); // 模拟更新视图
+        });
+        let dep = new Dep();
+        observe(person);
+
+        // 【注意】以上代码风格并不值得你模仿 仅为帮助你入门
+
+        // 接下来 你就可以在控制台更改数据 即时看到捕获更改的效果了
+    </script>
+</body>
+
+</html>

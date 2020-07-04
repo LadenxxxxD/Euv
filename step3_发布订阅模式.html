@@ -9,19 +9,24 @@
 
 <body>
     <script>
+        // 定义一个订阅者收集器 在数组中存放所有订阅者
         function Dep() {
             this.subs = [];
         }
+        // Dep的add方法 用于向Dep中添加订阅者
         Dep.prototype.addSub = function (sub) {
             this.subs.push(sub);
         };
+        // Dep的通知方法  用于提醒订阅者触发更新
         Dep.prototype.notify = function () {
             this.subs.forEach(sub => sub.update());
         }
 
+        // Watcher即为订阅者 参数为一个函数 是订阅者收到通知后需要执行的方法
         function Watcher(fn) {
             this.fn = fn;
         }
+        // 订阅者的更新方法 用于激活（调用、执行）订阅者的方法
         Watcher.prototype.update = function () {
             this.fn();
         };

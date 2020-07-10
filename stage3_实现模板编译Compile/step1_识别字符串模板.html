@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>step1_识别字符串模板</title>
+</head>
+
+<body>
+    <!-- 目标：解析{{}}中的内容-->
+    <div id="app">
+        <p>{{msg}}</p>
+    </div>
+
+    <script>
+        // 首先我们回想一下我们是怎么实现vue的hello world应用的
+        const app = new Euv({
+            el: '#app',
+            data: {
+                msg: 'Hello World!'
+            }
+        });
+        // 模仿vue实例化
+        function Euv(options) {
+            this.$el = options.el;
+            this.$data = options.data;
+            if (this.$el) {
+                new compiler(this.$el, this.$data);
+            }
+        }
+        console.group('Euv中的数据:');
+        console.log('el: ', app.$el);
+        console.log('data: ', app.$data);
+        console.groupEnd();
+
+
+
+        function compiler(el, data) {
+            // nodeType属性可以用来判断 是否为元素节点 
+            // nodeType值为1 则为元素，2为属性，3为文本.... 
+            // 具体：https://www.w3school.com.cn/jsref/prop_node_nodetype.asp
+            if (el.nodeType === 1) {
+                this.el = el;
+            } else {
+                this.el = document.querySelector(el);
+            }
+            // 现在我们已经成功挂在到指定元素上了 下一步需要对元素中的内容进行解析
+            this.content = this.el.innerText;
+            // 用于匹配形如{{xxx}}的字符串
+            const tempStrReg = /\{\{.+\}\}/g;
+            // 用于匹配花括号 { 或 } 通过replace替换
+            const bracesReg = /[\{\}]/g;
+            // let tempStr = this.content.match(tempStrReg);
+            tempStrReg.exec(this.content).forEach(item => {
+                let dataKey = item.replace(bracesReg, '');
+                console.log('data中的key为：', dataKey);
+                console.log('data中的value为：', data[dataKey]);
+            });
+            // 到这里我们发现已经可以解析到{{}}中的内容 并且读取到data中对应的值了
+            // 但我们怎么实现渲染（替换）到页面上呢？
+        }
+
+    </script>
+</body>
+
+</html>

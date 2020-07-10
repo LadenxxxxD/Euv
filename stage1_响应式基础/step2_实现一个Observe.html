@@ -37,49 +37,7 @@
         }
         observe(person);
 
-        // 2. 此时如果对象中嵌套子对象，子对象中的属性是不能被监听的，上述例子只能监听到person.ability层
-        // 如果对ablity中的属性进行赋值更改，我们是捕获不到的，此时我们需要通过一定的手段（递归）为其添加监听
-        let person2 = {
-            name: '李四',
-            age: 20,
-            ability: {
-                learning: '数学',
-                sports: '游泳',
-                artistic: {
-                    music: '钢琴',
-                    painting: '速写'
-                }
-            }
-        }
-        function observe2(data) {
-            if (data && typeof data === 'object') {
-                // 上面如果直接判断是否为object类型 会包含null
-                for (const key in data) {       // 循环遍历监听对象中的每一个属性
-                    let value = data[key];      // 暂存旧的值
-                    observe2(value);            // 这里添加了递归（原本的对象中可以能存在嵌套的子对象）
-                    Object.defineProperty(data, key, {
-                        enumerable: true,    // 可枚举
-                        get: function () {
-                            console.log('getter捕获到：', value);
-                            return value;
-                        },
-                        set: function (newValue) {
-                            if (newValue === value) {
-                                console.log('未更改', value);
-                                return;
-                            }
-                            value = newValue;
-                            console.log('监听到新的更改', value, ' => ', newValue);
-                            observe2(newValue);    // 这里添加了递归（新赋的值中可能为一个嵌套对象）
-                        }
-                    });
-                }
-            }
-        }
-        observe2(person2);
-        // 此时已经可以对一个对象下的所有嵌套子对象进行数据监听了
-
-        // 以上代码仅为辅助你理解 理清思路 没有进行优化 在之后的整合版本中会对代码优化 也不建议你将以上冗长的代码风格带入到日常开发中
+        // 但是这种方式并不能为嵌套对象添加监听 我们需要对有嵌套的值进行递归
 
     </script>
 </body>
